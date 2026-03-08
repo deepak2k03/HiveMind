@@ -659,6 +659,242 @@ const HeroReveal = ({ children, style = {} }) => {
   );
 };
 
+/* Auth entrance item — 3D transforms + blur dissolve from different directions */
+const AuthFormItem = ({ children, delay = 0, show = false, from = 'bottom' }) => {
+  const transforms = {
+    bottom: 'translateY(40px) scale(0.88) rotateX(15deg)',
+    left: 'translateX(-50px) scale(0.9) rotateY(12deg)',
+    right: 'translateX(50px) scale(0.9) rotateY(-12deg)',
+    scale: 'scale(0.4) rotateZ(10deg)',
+    fade: 'scale(0.94)',
+  };
+  return (
+    <div style={{
+      opacity: show ? 1 : 0,
+      transform: show ? 'translateY(0) scale(1) rotateX(0) rotateY(0) rotateZ(0)' : (transforms[from] || transforms.bottom),
+      filter: show ? 'blur(0px)' : 'blur(8px)',
+      transition: `all 0.85s cubic-bezier(0.16,1,0.3,1) ${delay}s`,
+    }}>
+      {children}
+    </div>
+  );
+};
+
+/* Auth form — sticks to vertical center at end of scroll, extreme entrance */
+const StickyAuthForm = () => {
+  const anchorRef = useRef();
+  const formRef = useRef();
+  const [show, setShow] = useState(false);
+  const firedRef = useRef(false);
+
+  useEffect(() => {
+    let id;
+    const tick = () => {
+      if (!anchorRef.current || !formRef.current) { id = requestAnimationFrame(tick); return; }
+      const aTop = anchorRef.current.getBoundingClientRect().top;
+      const vh = window.innerHeight;
+      const fh = formRef.current.offsetHeight || 500;
+      const centerY = (vh - fh) / 2;
+
+      const entered = vh - aTop;
+      const vis = clamp01(entered / (vh * 0.6));
+
+      if (aTop <= centerY) {
+        formRef.current.style.transform = `translateX(-50%) translateY(${centerY - aTop}px)`;
+        formRef.current.style.opacity = '1';
+      } else {
+        formRef.current.style.transform = `translateX(-50%) translateY(${(1 - vis) * 60}px) scale(${(0.9 + vis * 0.1).toFixed(3)})`;
+        formRef.current.style.opacity = vis.toFixed(3);
+      }
+
+      if (vis > 0.4 && !firedRef.current) { firedRef.current = true; setShow(true); }
+      id = requestAnimationFrame(tick);
+    };
+    tick();
+    return () => cancelAnimationFrame(id);
+  }, []);
+
+  const inputStyle = {
+    background: 'rgba(19,19,31,0.55)', border: '1px solid rgba(99,102,241,0.15)',
+    borderRadius: 14, padding: '16px 20px', fontSize: 14, color: '#e2e8f0',
+    outline: 'none', fontFamily: "'Sora', sans-serif", backdropFilter: 'blur(12px)',
+    width: '100%', boxSizing: 'border-box',
+    transition: 'border-color 0.3s, box-shadow 0.3s',
+  };
+
+  const orbitDots = [
+    { anim: 'authOrbit1', dur: '12s', size: 4, color: '#818cf8', glow: 'rgba(129,140,248,0.8)' },
+    { anim: 'authOrbit2', dur: '16s', size: 3, color: '#a78bfa', glow: 'rgba(167,139,250,0.7)' },
+    { anim: 'authOrbit3', dur: '20s', size: 5, color: '#6366f1', glow: 'rgba(99,102,241,0.9)' },
+    { anim: 'authOrbit4', dur: '14s', size: 3, color: '#e879f9', glow: 'rgba(232,121,249,0.7)' },
+    { anim: 'authOrbit5', dur: '18s', size: 4, color: '#c4b5fd', glow: 'rgba(196,181,253,0.6)' },
+  ];
+
+  return (
+    <>
+      <div ref={anchorRef} style={{ position: 'absolute', top: '450vh', left: 0, width: 1, height: 1 }} />
+      <div ref={formRef} style={{
+        position: 'absolute', top: '450vh', left: '50%', width: 440, opacity: 0,
+        willChange: 'opacity, transform',
+      }}>
+
+        {/* ── Orbiting luminous particles ── */}
+        {orbitDots.map((dot, i) => (
+          <div key={i} style={{
+            position: 'absolute', top: '50%', left: '50%', width: 0, height: 0,
+            animation: show ? `${dot.anim} ${dot.dur} linear infinite` : 'none',
+            opacity: show ? 1 : 0, transition: `opacity 1.2s ease ${0.6 + i * 0.18}s`,
+            zIndex: 0, pointerEvents: 'none',
+          }}>
+            <div style={{
+              width: dot.size, height: dot.size, borderRadius: '50%',
+              background: dot.color,
+              boxShadow: `0 0 ${dot.size * 5}px ${dot.glow}, 0 0 ${dot.size * 10}px ${dot.glow}`,
+            }} />
+          </div>
+        ))}
+
+        {/* ── Expanding pulse rings ── */}
+        {[1, 2].map(i => (
+          <div key={i} style={{
+            position: 'absolute', top: '50%', left: '50%', width: 200, height: 200,
+            marginLeft: -100, marginTop: -100, borderRadius: '50%',
+            border: `1px solid rgba(99,102,241,${0.35 / i})`,
+            animation: show ? `authPulseRing${i} ${2.5 + i}s ease-out infinite ${i * 0.9}s` : 'none',
+            opacity: show ? 1 : 0, pointerEvents: 'none', zIndex: 0,
+          }} />
+        ))}
+
+        <div style={{ ...sectionFont, textAlign: 'center', position: 'relative', zIndex: 1 }}>
+
+          {/* ── Rotating conic-gradient border (showstopper) ── */}
+          <div style={{
+            position: 'absolute', inset: -1.5, borderRadius: 26, overflow: 'hidden',
+            opacity: show ? 1 : 0, transition: 'opacity 0.9s ease 0.25s',
+          }}>
+            <div style={{
+              position: 'absolute', top: '50%', left: '50%',
+              width: '200%', height: '200%',
+              background: 'conic-gradient(from 0deg, transparent 0%, #6366f1 8%, #818cf8 16%, #a78bfa 24%, #c4b5fd 30%, transparent 38%, transparent 50%, #e879f9 58%, #c084fc 66%, #8b5cf6 74%, #6366f1 82%, transparent 90%, transparent 100%)',
+              animation: show ? 'authBorderSpin 4s linear infinite' : 'none',
+            }} />
+            <div style={{
+              position: 'absolute', inset: 2, borderRadius: 24,
+              background: 'rgba(12,12,20,0.96)',
+            }} />
+          </div>
+
+          {/* ── Enhanced frosted glass backdrop ── */}
+          <div style={{
+            position: 'absolute', inset: 0, borderRadius: 24,
+            background: 'radial-gradient(ellipse at 50% -20%, rgba(99,102,241,0.12) 0%, rgba(12,12,20,0.93) 60%)',
+            backdropFilter: 'blur(32px)', WebkitBackdropFilter: 'blur(32px)',
+            opacity: show ? 1 : 0, transition: 'opacity 0.6s ease 0.15s',
+            animation: show ? 'authGlow 4s ease-in-out infinite' : 'none',
+          }} />
+
+          {/* ── Sweeping scan line ── */}
+          <div style={{
+            position: 'absolute', inset: 0, borderRadius: 24, overflow: 'hidden',
+            opacity: show ? 0.55 : 0, transition: 'opacity 0.6s ease 0.6s',
+            pointerEvents: 'none', zIndex: 3,
+          }}>
+            <div style={{
+              position: 'absolute', left: 0, width: '100%', height: 2,
+              background: 'linear-gradient(90deg, transparent 0%, rgba(99,102,241,0.9) 25%, rgba(139,92,246,1) 50%, rgba(99,102,241,0.9) 75%, transparent 100%)',
+              boxShadow: '0 0 24px rgba(99,102,241,0.6), 0 0 50px rgba(99,102,241,0.25)',
+              animation: show ? 'authScanLine 3.8s ease-in-out infinite 1s' : 'none',
+            }} />
+          </div>
+
+          {/* ── Corner accent brackets ── */}
+          {show && (
+            <>
+              <div style={{ position: 'absolute', top: -8, left: -8, width: 22, height: 22, borderTop: '2px solid #818cf8', borderLeft: '2px solid #818cf8', borderRadius: '4px 0 0 0', animation: 'authCorner 2.2s ease-in-out infinite', zIndex: 4 }} />
+              <div style={{ position: 'absolute', top: -8, right: -8, width: 22, height: 22, borderTop: '2px solid #a78bfa', borderRight: '2px solid #a78bfa', borderRadius: '0 4px 0 0', animation: 'authCorner 2.2s ease-in-out infinite 0.55s', zIndex: 4 }} />
+              <div style={{ position: 'absolute', bottom: -8, left: -8, width: 22, height: 22, borderBottom: '2px solid #a78bfa', borderLeft: '2px solid #a78bfa', borderRadius: '0 0 0 4px', animation: 'authCorner 2.2s ease-in-out infinite 1.1s', zIndex: 4 }} />
+              <div style={{ position: 'absolute', bottom: -8, right: -8, width: 22, height: 22, borderBottom: '2px solid #818cf8', borderRight: '2px solid #818cf8', borderRadius: '0 0 4px 0', animation: 'authCorner 2.2s ease-in-out infinite 1.65s', zIndex: 4 }} />
+            </>
+          )}
+
+          {/* ── Form content ── */}
+          <div style={{ position: 'relative', zIndex: 2, padding: '48px 40px' }}>
+
+            <AuthFormItem show={show} delay={0.12} from="scale">
+              <div style={{
+                width: 62, height: 62, margin: '0 auto 26px', borderRadius: '50%',
+                background: 'linear-gradient(135deg, #6366f1, #8b5cf6, #a78bfa)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                boxShadow: '0 0 50px rgba(99,102,241,0.6), 0 0 100px rgba(99,102,241,0.2), inset 0 0 20px rgba(255,255,255,0.1)',
+                animation: show ? 'authGlow 3s ease-in-out infinite' : 'none',
+              }}>
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.95)" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M12 2L2 7l10 5 10-5-10-5z" />
+                  <path d="M2 17l10 5 10-5" />
+                  <path d="M2 12l10 5 10-5" />
+                </svg>
+              </div>
+            </AuthFormItem>
+
+            <AuthFormItem show={show} delay={0.25} from="fade">
+              <h3 style={{
+                ...gradText,
+                backgroundImage: 'linear-gradient(135deg, #ffffff 0%, #c7d2fe 40%, #818cf8 70%, #6366f1 100%)',
+                fontSize: 38, fontWeight: 800, margin: 0,
+                textShadow: '0 0 40px rgba(99,102,241,0.5), 0 0 80px rgba(99,102,241,0.2)',
+              }}>Join HiveMind</h3>
+            </AuthFormItem>
+
+            <AuthFormItem show={show} delay={0.4} from="bottom">
+              <p style={{ color: '#64748b', fontSize: 13, marginTop: 10, marginBottom: 32, letterSpacing: '0.06em' }}>
+                Start training with the collective
+              </p>
+            </AuthFormItem>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+              <AuthFormItem show={show} delay={0.55} from="left">
+                <input type="email" placeholder="Email address" style={inputStyle} />
+              </AuthFormItem>
+              <AuthFormItem show={show} delay={0.7} from="right">
+                <input type="password" placeholder="Password" style={inputStyle} />
+              </AuthFormItem>
+              <AuthFormItem show={show} delay={0.85} from="bottom">
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginTop: 10 }}>
+                  <button style={{
+                    background: 'linear-gradient(135deg, #6366f1, #8b5cf6)', color: '#fff',
+                    border: 'none', borderRadius: 14, padding: '16px 0', fontWeight: 700,
+                    fontSize: 14, cursor: 'pointer',
+                    boxShadow: '0 4px 30px rgba(99,102,241,0.5), inset 0 1px 0 rgba(255,255,255,0.15)',
+                    fontFamily: "'Sora', sans-serif", letterSpacing: '0.05em',
+                    transition: 'transform 0.2s, box-shadow 0.2s',
+                  }}>Login</button>
+                  <button style={{
+                    background: 'rgba(19,19,31,0.5)', color: '#a5b4fc',
+                    border: '1px solid rgba(99,102,241,0.25)', borderRadius: 14,
+                    padding: '16px 0', fontWeight: 600, fontSize: 14, cursor: 'pointer',
+                    fontFamily: "'Sora', sans-serif", letterSpacing: '0.05em',
+                    transition: 'border-color 0.3s, color 0.3s',
+                  }}>Register</button>
+                </div>
+              </AuthFormItem>
+            </div>
+
+            <AuthFormItem show={show} delay={1.05} from="fade">
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, marginTop: 30 }}>
+                <div style={{ flex: 1, height: 1, background: 'linear-gradient(90deg, transparent, rgba(99,102,241,0.25))' }} />
+                <p style={{ color: '#475569', fontSize: 10, lineHeight: 1.5, letterSpacing: '0.14em', textTransform: 'uppercase', margin: 0, whiteSpace: 'nowrap' }}>
+                  Privacy-preserving network
+                </p>
+                <div style={{ flex: 1, height: 1, background: 'linear-gradient(270deg, transparent, rgba(99,102,241,0.25))' }} />
+              </div>
+            </AuthFormItem>
+          </div>
+        </div>
+      </div>
+    </>
+  );
+};
+
 const HtmlOverlay = () => {
   const pinkGrad = { ...gradText, backgroundImage: 'linear-gradient(135deg, #e879f9 0%, #f472b6 50%, #fb923c 100%)' };
   const cyanGrad = { ...gradText, backgroundImage: 'linear-gradient(135deg, #22d3ee 0%, #3b82f6 50%, #8b5cf6 100%)' };
@@ -669,19 +905,20 @@ const HtmlOverlay = () => {
       {/* ── Hero — centered grand entrance ── */}
       <HeroReveal style={{ position: 'absolute', top: 0, left: 0, width: '100vw', height: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center' }}>
         <div style={sectionFont}>
-          <p style={{ color: '#6366f1', fontSize: 12, letterSpacing: '0.4em', textTransform: 'uppercase', marginBottom: 20, fontWeight: 500 }}>
+          <p style={{ color: '#a5b4fc', fontSize: 12, letterSpacing: '0.4em', textTransform: 'uppercase', marginBottom: 20, fontWeight: 600, textShadow: '0 0 20px rgba(129,140,248,0.4)' }}>
             Federated Intelligence Platform
           </p>
           <h1 style={heroTitleStyle}>
             HiveMind
           </h1>
           <div style={{ ...accentLine('#6366f1', 100), marginTop: 24, marginLeft: 'auto', marginRight: 'auto' }} />
-          <p style={{ color: '#94a3b8', fontSize: 16, lineHeight: 1.8, marginTop: 8, maxWidth: 480 }}>
+          <p style={{ color: '#94a3b8', fontSize: 16, lineHeight: 1.8, marginTop: 8, maxWidth: 480, marginLeft: 'auto', marginRight: 'auto' }}>
             Train AI models together without ever sharing your data.<br />Your devices. One collective brain.
           </p>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, marginTop: 40, color: '#4b5563', fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase' }}>
-            <div style={{ width: 24, height: 1, background: 'linear-gradient(90deg, #6366f1, transparent)' }} />
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, marginTop: 40, color: '#64748b', fontSize: 11, letterSpacing: '0.25em', textTransform: 'uppercase' }}>
+            <div style={{ width: 24, height: 1, background: 'linear-gradient(90deg, #818cf8, transparent)' }} />
             Scroll to explore
+            <div style={{ width: 24, height: 1, background: 'linear-gradient(270deg, #818cf8, transparent)' }} />
           </div>
         </div>
       </HeroReveal>
@@ -766,36 +1003,8 @@ const HtmlOverlay = () => {
         </div>
       </RevealSection>
 
-      {/* ── Auth / Join ── */}
-      <RevealSection from="center" style={{ position: 'absolute', top: '450vh', left: '50%', width: 400, marginLeft: -200 }}>
-        <div style={{ ...sectionFont, textAlign: 'center' }}>
-          <h3 style={{ ...gradText, fontSize: 34, fontWeight: 800, margin: 0 }}>Join HiveMind</h3>
-          <p style={{ color: '#4b5563', fontSize: 13, marginTop: 8, marginBottom: 28 }}>Start training with the collective</p>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-            <input
-              type="email"
-              placeholder="Email address"
-              style={{ background: 'rgba(19,19,31,0.5)', border: '1px solid rgba(99,102,241,0.15)', borderRadius: 12, padding: '15px 18px', fontSize: 14, color: '#e2e8f0', outline: 'none', fontFamily: "'Sora', sans-serif", backdropFilter: 'blur(12px)' }}
-            />
-            <input
-              type="password"
-              placeholder="Password"
-              style={{ background: 'rgba(19,19,31,0.5)', border: '1px solid rgba(99,102,241,0.15)', borderRadius: 12, padding: '15px 18px', fontSize: 14, color: '#e2e8f0', outline: 'none', fontFamily: "'Sora', sans-serif", backdropFilter: 'blur(12px)' }}
-            />
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginTop: 8 }}>
-              <button style={{ background: 'linear-gradient(135deg, #6366f1, #8b5cf6)', color: '#fff', border: 'none', borderRadius: 12, padding: '15px 0', fontWeight: 700, fontSize: 14, cursor: 'pointer', boxShadow: '0 4px 24px rgba(99,102,241,0.4)', fontFamily: "'Sora', sans-serif", letterSpacing: '0.03em' }}>
-                Login
-              </button>
-              <button style={{ background: 'transparent', color: '#94a3b8', border: '1px solid rgba(99,102,241,0.2)', borderRadius: 12, padding: '15px 0', fontWeight: 600, fontSize: 14, cursor: 'pointer', fontFamily: "'Sora', sans-serif", letterSpacing: '0.03em' }}>
-                Register
-              </button>
-            </div>
-          </div>
-          <p style={{ color: '#374151', fontSize: 11, marginTop: 24, lineHeight: 1.5 }}>
-            Your device becomes part of a privacy‑preserving distributed training network.
-          </p>
-        </div>
-      </RevealSection>
+      {/* ── Auth / Join — sticky centered + staggered entrance ── */}
+      <StickyAuthForm />
     </div>
   );
 };
@@ -841,15 +1050,5 @@ export const Scene = () => (
       position: 'absolute', inset: 0, pointerEvents: 'none',
       background: 'radial-gradient(ellipse at center, transparent 50%, rgba(12,12,20,0.6) 100%)',
     }} />
-
-    {/* Scroll indicator */}
-    <div style={{
-      position: 'absolute', bottom: 36, left: '50%',
-      display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6,
-      pointerEvents: 'none', animation: 'scrollFloat 3s ease-in-out infinite',
-    }}>
-      <span style={{ color: '#94a3b8', fontSize: 11, letterSpacing: '0.25em', fontFamily: "'Sora', sans-serif", textTransform: 'uppercase' }}>Scroll</span>
-      <div style={{ width: 1, height: 30, background: 'linear-gradient(to bottom, #818cf8, transparent)', opacity: 0.7 }} />
-    </div>
   </div>
 );
