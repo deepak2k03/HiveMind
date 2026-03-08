@@ -187,15 +187,15 @@ export const DashboardOverlay = () => {
   }
 
   return (
-    <div className="w-full h-full p-8 flex flex-col justify-between pointer-events-none">
+    <div className="w-full h-full p-4 sm:p-8 flex flex-col justify-between pointer-events-none">
       
       {/* Header / Branding */}
       <motion.div 
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="flex justify-between items-center"
+        className="flex justify-between items-center flex-wrap gap-3"
       >
-        <h1 className="text-4xl font-black tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-fuchsia-500">
+        <h1 className="text-2xl sm:text-4xl font-black tracking-tighter text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-fuchsia-500">
           HIVEMIND<span className="text-white text-xl">.OS</span>
         </h1>
         <div className="flex items-center gap-3 pointer-events-auto">
@@ -223,7 +223,7 @@ export const DashboardOverlay = () => {
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.95 }}
-            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[420px] bg-black/55 backdrop-blur-xl border border-white/10 p-8 rounded-2xl pointer-events-auto"
+            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[min(420px,calc(100vw-2rem))] bg-black/55 backdrop-blur-xl border border-white/10 p-6 sm:p-8 rounded-2xl pointer-events-auto"
           >
             <div className="flex items-center gap-2 mb-4">
               <Shield size={20} className="text-cyan-400" />
@@ -297,7 +297,7 @@ export const DashboardOverlay = () => {
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.9 }}
-            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[460px] bg-black/40 backdrop-blur-xl border border-white/10 p-8 rounded-2xl pointer-events-auto"
+            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[min(460px,calc(100vw-2rem))] bg-black/40 backdrop-blur-xl border border-white/10 p-6 sm:p-8 rounded-2xl pointer-events-auto"
           >
             <p className="text-xs uppercase tracking-widest text-cyan-300 mb-2">Signed in as {displayName}</p>
             <h2 className="text-2xl font-bold mb-2">Connect to Nexus</h2>
@@ -359,10 +359,10 @@ export const DashboardOverlay = () => {
             key="dashboard-state"
             initial={{ opacity: 0, x: -50 }}
             animate={{ opacity: 1, x: 0 }}
-            className="absolute bottom-8 left-8 flex flex-col gap-4 pointer-events-auto"
+            className="absolute bottom-4 left-4 sm:bottom-8 sm:left-8 right-4 sm:right-auto flex flex-col gap-4 pointer-events-auto"
           >
             {/* Stats Panel */}
-            <div className="bg-black/40 backdrop-blur-xl border border-white/10 p-6 rounded-2xl w-[320px] flex flex-col gap-4 shadow-2xl">
+            <div className="bg-black/40 backdrop-blur-xl border border-white/10 p-4 sm:p-6 rounded-2xl w-full sm:w-[320px] flex flex-col gap-4 shadow-2xl">
               <div className="flex justify-between items-center border-b border-white/10 pb-4">
                 <div>
                   <p className="text-xs text-gray-400 uppercase tracking-widest">Active Nexus</p>
@@ -392,7 +392,7 @@ export const DashboardOverlay = () => {
             </div>
 
             {workHistory.length > 0 && (
-              <div className="bg-black/30 backdrop-blur-xl border border-white/10 p-4 rounded-2xl w-[320px]">
+              <div className="bg-black/30 backdrop-blur-xl border border-white/10 p-4 rounded-2xl w-full sm:w-[320px]">
                 <p className="text-xs uppercase tracking-wider text-gray-400 mb-2">Recent Sessions</p>
                 <div className="space-y-2 max-h-32 overflow-y-auto">
                   {workHistory.slice(0, 4).map((item) => (

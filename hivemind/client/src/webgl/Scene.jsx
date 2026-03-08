@@ -592,7 +592,7 @@ const sectionFont = { fontFamily: "'Sora', sans-serif", color: '#c8cad0' };
 const heroTitleStyle = {
   ...gradText,
   backgroundImage: 'linear-gradient(135deg, #ffffff 0%, #e0e7ff 30%, #c7d2fe 60%, #a5b4fc 100%)',
-  fontSize: 'clamp(80px, 14vw, 180px)',
+  fontSize: 'clamp(40px, 14vw, 180px)',
   fontWeight: 900,
   lineHeight: 0.88,
   margin: 0,
@@ -734,7 +734,7 @@ const StickyAuthForm = () => {
     <>
       <div ref={anchorRef} style={{ position: 'absolute', top: '450vh', left: 0, width: 1, height: 1 }} />
       <div ref={formRef} style={{
-        position: 'absolute', top: '450vh', left: '50%', width: 440, opacity: 0,
+        position: 'absolute', top: '450vh', left: '50%', width: 'min(440px, 92vw)', opacity: 0,
         willChange: 'opacity, transform',
       }}>
 
@@ -818,7 +818,7 @@ const StickyAuthForm = () => {
           )}
 
           {/* ── Form content ── */}
-          <div style={{ position: 'relative', zIndex: 2, padding: '48px 40px' }}>
+          <div style={{ position: 'relative', zIndex: 2, padding: 'clamp(24px, 5vw, 48px) clamp(18px, 4vw, 40px)' }}>
 
             <AuthFormItem show={show} delay={0.12} from="scale">
               <div style={{
@@ -840,7 +840,7 @@ const StickyAuthForm = () => {
               <h3 style={{
                 ...gradText,
                 backgroundImage: 'linear-gradient(135deg, #ffffff 0%, #c7d2fe 40%, #818cf8 70%, #6366f1 100%)',
-                fontSize: 38, fontWeight: 800, margin: 0,
+                fontSize: 'clamp(26px, 7vw, 38px)', fontWeight: 800, margin: 0,
                 textShadow: '0 0 40px rgba(99,102,241,0.5), 0 0 80px rgba(99,102,241,0.2)',
               }}>Join HiveMind</h3>
             </AuthFormItem>
@@ -912,7 +912,7 @@ const HtmlOverlay = () => {
             HiveMind
           </h1>
           <div style={{ ...accentLine('#6366f1', 100), marginTop: 24, marginLeft: 'auto', marginRight: 'auto' }} />
-          <p style={{ color: '#94a3b8', fontSize: 16, lineHeight: 1.8, marginTop: 8, maxWidth: 480, marginLeft: 'auto', marginRight: 'auto' }}>
+          <p style={{ color: '#94a3b8', fontSize: 'clamp(13px, 2.5vw, 16px)', lineHeight: 1.8, marginTop: 8, maxWidth: 'min(480px, 85vw)', marginLeft: 'auto', marginRight: 'auto' }}>
             Train AI models together without ever sharing your data.<br />Your devices. One collective brain.
           </p>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, marginTop: 40, color: '#64748b', fontSize: 11, letterSpacing: '0.25em', textTransform: 'uppercase' }}>
@@ -924,27 +924,27 @@ const HtmlOverlay = () => {
       </HeroReveal>
 
       {/* ── 01 The Vision ── */}
-      <RevealSection from="left" style={{ position: 'absolute', top: '110vh', left: '6vw', width: 520 }}>
+      <RevealSection from="left" style={{ position: 'absolute', top: '110vh', left: '6vw', width: 'min(520px, 88vw)' }}>
         <div style={sectionFont}>
           <div style={accentLine('#818cf8', 40)} />
           <p style={{ color: '#818cf8', fontSize: 11, letterSpacing: '0.4em', textTransform: 'uppercase', marginBottom: 12, fontWeight: 600 }}>
             01 — The Vision
           </p>
-          <h2 style={{ color: '#e2e8f0', fontSize: 44, fontWeight: 700, lineHeight: 1.1, margin: 0 }}>
+          <h2 style={{ color: '#e2e8f0', fontSize: 'clamp(26px, 6vw, 44px)', fontWeight: 700, lineHeight: 1.1, margin: 0 }}>
             Collaborative AI,<br />
             <span style={gradText}>Without Boundaries</span>
           </h2>
           <p style={{ color: '#94a3b8', fontSize: 15, lineHeight: 1.8, marginTop: 18 }}>
             HiveMind is a federated learning platform where hundreds of devices train models together in real‑time — while every byte of raw data stays private.
           </p>
-          <div style={{ display: 'flex', gap: 36, marginTop: 28 }}>
+          <div style={{ display: 'flex', gap: 'clamp(16px, 4vw, 36px)', marginTop: 28, flexWrap: 'wrap' }}>
             {[
               { val: '100%', label: 'Privacy', col: '#818cf8' },
               { val: '10×', label: 'Faster', col: '#a78bfa' },
               { val: '∞', label: 'Devices', col: '#e879f9' },
             ].map(({ val, label, col }) => (
               <div key={label}>
-                <p style={{ color: col, fontSize: 30, fontWeight: 800, margin: 0, lineHeight: 1 }}>{val}</p>
+                <p style={{ color: col, fontSize: 'clamp(22px, 5vw, 30px)', fontWeight: 800, margin: 0, lineHeight: 1 }}>{val}</p>
                 <p style={{ color: '#4b5563', fontSize: 10, marginTop: 6, fontWeight: 500, letterSpacing: '0.15em', textTransform: 'uppercase' }}>{label}</p>
               </div>
             ))}
@@ -953,13 +953,13 @@ const HtmlOverlay = () => {
       </RevealSection>
 
       {/* ── 02 Connect ── */}
-      <RevealSection from="right" style={{ position: 'absolute', top: '210vh', right: '6vw', width: 500 }}>
+      <RevealSection from="right" style={{ position: 'absolute', top: '210vh', right: '6vw', width: 'min(500px, 88vw)' }}>
         <div style={{ ...sectionFont, textAlign: 'right' }}>
           <div style={{ ...accentLine('#e879f9', 40), marginLeft: 'auto' }} />
           <p style={{ color: '#e879f9', fontSize: 11, letterSpacing: '0.4em', textTransform: 'uppercase', marginBottom: 12, fontWeight: 600 }}>
             02 — Connect
           </p>
-          <h2 style={{ color: '#e2e8f0', fontSize: 44, fontWeight: 700, lineHeight: 1.1, margin: 0 }}>
+          <h2 style={{ color: '#e2e8f0', fontSize: 'clamp(26px, 6vw, 44px)', fontWeight: 700, lineHeight: 1.1, margin: 0 }}>
             Every Device<br />
             <span style={pinkGrad}>Trains Locally</span>
           </h2>
@@ -970,13 +970,13 @@ const HtmlOverlay = () => {
       </RevealSection>
 
       {/* ── 03 Synchronize ── */}
-      <RevealSection from="left" style={{ position: 'absolute', top: '300vh', left: '6vw', width: 500 }}>
+      <RevealSection from="left" style={{ position: 'absolute', top: '300vh', left: '6vw', width: 'min(500px, 88vw)' }}>
         <div style={sectionFont}>
           <div style={accentLine('#22d3ee', 40)} />
           <p style={{ color: '#22d3ee', fontSize: 11, letterSpacing: '0.4em', textTransform: 'uppercase', marginBottom: 12, fontWeight: 600 }}>
             03 — Synchronize
           </p>
-          <h2 style={{ color: '#e2e8f0', fontSize: 44, fontWeight: 700, lineHeight: 1.1, margin: 0 }}>
+          <h2 style={{ color: '#e2e8f0', fontSize: 'clamp(26px, 6vw, 44px)', fontWeight: 700, lineHeight: 1.1, margin: 0 }}>
             Only Weights Travel.<br />
             <span style={cyanGrad}>Data Never Leaves.</span>
           </h2>
@@ -987,13 +987,13 @@ const HtmlOverlay = () => {
       </RevealSection>
 
       {/* ── 04 Evolve ── */}
-      <RevealSection from="right" style={{ position: 'absolute', top: '380vh', right: '8vw', width: 480 }}>
+      <RevealSection from="right" style={{ position: 'absolute', top: '380vh', right: '8vw', width: 'min(480px, 84vw)' }}>
         <div style={{ ...sectionFont, textAlign: 'center' }}>
           <div style={{ ...accentLine('#a78bfa', 40), margin: '0 auto 18px' }} />
           <p style={{ color: '#a78bfa', fontSize: 11, letterSpacing: '0.4em', textTransform: 'uppercase', marginBottom: 12, fontWeight: 600 }}>
             04 — Evolve
           </p>
-          <h2 style={{ color: '#e2e8f0', fontSize: 44, fontWeight: 700, lineHeight: 1.1, margin: 0 }}>
+          <h2 style={{ color: '#e2e8f0', fontSize: 'clamp(26px, 6vw, 44px)', fontWeight: 700, lineHeight: 1.1, margin: 0 }}>
             The Model Gets Smarter.<br />
             <span style={gradText}>Together.</span>
           </h2>
