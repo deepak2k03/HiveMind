@@ -1,4 +1,4 @@
-import React, { useMemo, useRef, useEffect } from 'react';
+import React, { useMemo, useRef, useEffect, useState } from 'react';
 import { Canvas, useFrame, extend } from '@react-three/fiber';
 import { Scroll, ScrollControls, useScroll, shaderMaterial } from '@react-three/drei';
 import * as THREE from 'three';
@@ -591,18 +591,73 @@ const sectionFont = { fontFamily: "'Sora', sans-serif", color: '#c8cad0' };
 
 const heroTitleStyle = {
   ...gradText,
-  fontSize: 96,
+  backgroundImage: 'linear-gradient(135deg, #ffffff 0%, #e0e7ff 30%, #c7d2fe 60%, #a5b4fc 100%)',
+  fontSize: 'clamp(80px, 14vw, 180px)',
   fontWeight: 900,
   lineHeight: 0.88,
   margin: 0,
-  letterSpacing: '-0.03em',
-  textShadow: '0 0 80px rgba(99,102,241,0.5), 0 0 30px rgba(139,92,246,0.35), 0 4px 60px rgba(99,102,241,0.15)',
+  letterSpacing: '-0.04em',
+  textShadow: '0 0 120px rgba(99,102,241,0.7), 0 0 60px rgba(139,92,246,0.5), 0 0 200px rgba(99,102,241,0.25)',
 };
 
 const accentLine = (color = '#6366f1', w = 50) => ({
   width: w, height: 2, borderRadius: 2, marginBottom: 18,
   background: `linear-gradient(90deg, ${color}, transparent)`,
 });
+
+/* Grand hero entrance — fades in with scale + backdrop blur */
+const HeroReveal = ({ children, style = {} }) => {
+  const ref = useRef();
+  const backdropRef = useRef();
+  const [entered, setEntered] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setEntered(true), 300);
+    return () => clearTimeout(timer);
+  }, []);
+
+  useEffect(() => {
+    let id;
+    const tick = () => {
+      if (ref.current) {
+        const rect = ref.current.getBoundingClientRect();
+        const vh = window.innerHeight;
+        const center = rect.top + rect.height / 2;
+        const distFromCenter = Math.abs(center - vh / 2);
+        const maxDist = vh * 0.55;
+        const raw = clamp01(1 - distFromCenter / maxDist);
+        const a = raw * raw * (3 - 2 * raw);
+        ref.current.style.opacity = a.toFixed(3);
+        ref.current.style.transform = `scale(${(0.85 + a * 0.15).toFixed(4)})`;
+        if (backdropRef.current) {
+          backdropRef.current.style.opacity = (a * 0.6).toFixed(3);
+        }
+      }
+      id = requestAnimationFrame(tick);
+    };
+    tick();
+    return () => cancelAnimationFrame(id);
+  }, []);
+
+  return (
+    <>
+      {/* full-screen darkened blur backdrop behind hero */}
+      <div ref={backdropRef} style={{
+        position: 'absolute', top: 0, left: 0, width: '100vw', height: '100vh',
+        background: 'radial-gradient(ellipse at center, rgba(12,12,20,0.75) 0%, rgba(12,12,20,0.4) 60%, transparent 100%)',
+        backdropFilter: 'blur(6px)', WebkitBackdropFilter: 'blur(6px)',
+        opacity: 0, pointerEvents: 'none', transition: 'opacity 0.3s',
+      }} />
+      <div ref={ref} style={{
+        opacity: 0, willChange: 'opacity, transform',
+        transition: entered ? 'none' : 'opacity 1.2s cubic-bezier(0.16,1,0.3,1), transform 1.2s cubic-bezier(0.16,1,0.3,1)',
+        ...style,
+      }}>
+        {children}
+      </div>
+    </>
+  );
+};
 
 const HtmlOverlay = () => {
   const pinkGrad = { ...gradText, backgroundImage: 'linear-gradient(135deg, #e879f9 0%, #f472b6 50%, #fb923c 100%)' };
@@ -611,25 +666,25 @@ const HtmlOverlay = () => {
   return (
     <div style={{ width: '100vw', position: 'relative' }}>
 
-      {/* ── Hero ── */}
-      <RevealSection from="right" style={{ position: 'absolute', top: '8vh', right: '6vw', width: 520 }}>
+      {/* ── Hero — centered grand entrance ── */}
+      <HeroReveal style={{ position: 'absolute', top: 0, left: 0, width: '100vw', height: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', textAlign: 'center' }}>
         <div style={sectionFont}>
-          <p style={{ color: '#6366f1', fontSize: 11, letterSpacing: '0.35em', textTransform: 'uppercase', marginBottom: 16, fontWeight: 400 }}>
+          <p style={{ color: '#6366f1', fontSize: 12, letterSpacing: '0.4em', textTransform: 'uppercase', marginBottom: 20, fontWeight: 500 }}>
             Federated Intelligence Platform
           </p>
           <h1 style={heroTitleStyle}>
             HiveMind
           </h1>
-          <div style={{ ...accentLine('#6366f1', 80), marginTop: 20 }} />
-          <p style={{ color: '#94a3b8', fontSize: 16, lineHeight: 1.8, marginTop: 4 }}>
+          <div style={{ ...accentLine('#6366f1', 100), marginTop: 24, marginLeft: 'auto', marginRight: 'auto' }} />
+          <p style={{ color: '#94a3b8', fontSize: 16, lineHeight: 1.8, marginTop: 8, maxWidth: 480 }}>
             Train AI models together without ever sharing your data.<br />Your devices. One collective brain.
           </p>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 36, color: '#4b5563', fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase' }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, marginTop: 40, color: '#4b5563', fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase' }}>
             <div style={{ width: 24, height: 1, background: 'linear-gradient(90deg, #6366f1, transparent)' }} />
             Scroll to explore
           </div>
         </div>
-      </RevealSection>
+      </HeroReveal>
 
       {/* ── 01 The Vision ── */}
       <RevealSection from="left" style={{ position: 'absolute', top: '110vh', left: '6vw', width: 520 }}>
@@ -793,8 +848,8 @@ export const Scene = () => (
       display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6,
       pointerEvents: 'none', animation: 'scrollFloat 3s ease-in-out infinite',
     }}>
-      <span style={{ color: '#374151', fontSize: 10, letterSpacing: '0.25em', fontFamily: "'Sora', sans-serif", textTransform: 'uppercase' }}>Scroll</span>
-      <div style={{ width: 1, height: 30, background: 'linear-gradient(to bottom, #6366f1, transparent)', opacity: 0.4 }} />
+      <span style={{ color: '#94a3b8', fontSize: 11, letterSpacing: '0.25em', fontFamily: "'Sora', sans-serif", textTransform: 'uppercase' }}>Scroll</span>
+      <div style={{ width: 1, height: 30, background: 'linear-gradient(to bottom, #818cf8, transparent)', opacity: 0.7 }} />
     </div>
   </div>
 );
