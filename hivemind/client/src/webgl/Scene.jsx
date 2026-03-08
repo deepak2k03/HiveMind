@@ -552,10 +552,11 @@ const GroundGrid = () => {
 
 
 /* ═══════════════════════════════════════════════════
-   DOM OVERLAY — Dark neumorphic cards
+   DOM OVERLAY — Floating immersive text
    ═══════════════════════════════════════════════════ */
 
-const FadeCard = ({ children, style = {} }) => {
+/* Directional slide-in reveal — no blur, crisp text */
+const RevealSection = ({ children, style = {}, from = 'left' }) => {
   const ref = useRef();
 
   useEffect(() => {
@@ -569,33 +570,39 @@ const FadeCard = ({ children, style = {} }) => {
         const maxDist = vh * 0.55;
         const raw = clamp01(1 - distFromCenter / maxDist);
         const a = raw * raw * (3 - 2 * raw);
+        const xOff = from === 'left' ? -60 : from === 'right' ? 60 : 0;
         ref.current.style.opacity = a.toFixed(3);
-        ref.current.style.transform = `translateY(${((1 - a) * 60).toFixed(1)}px) scale(${(0.9 + a * 0.1).toFixed(4)})`;
-        ref.current.style.filter = `blur(${((1 - a) * 6).toFixed(1)}px)`;
+        ref.current.style.transform = `translate(${((1 - a) * xOff).toFixed(1)}px, ${((1 - a) * 30).toFixed(1)}px)`;
       }
       id = requestAnimationFrame(tick);
     };
     tick();
     return () => cancelAnimationFrame(id);
-  }, []);
+  }, [from]);
 
   return (
-    <div ref={ref} style={{ opacity: 0, willChange: 'opacity, transform, filter', ...style }}>
+    <div ref={ref} style={{ opacity: 0, willChange: 'opacity, transform', ...style }}>
       {children}
     </div>
   );
 };
 
-const panelStyle = {
-  background: SURFACE,
-  boxShadow: neu.raisedLg,
-  borderRadius: 24,
-  border: '1px solid rgba(99, 102, 241, 0.08)',
-  padding: '36px 40px',
-  color: '#c8cad0',
-  fontFamily: "'Sora', sans-serif",
-  backdropFilter: 'blur(20px)',
+const sectionFont = { fontFamily: "'Sora', sans-serif", color: '#c8cad0' };
+
+const heroTitleStyle = {
+  ...gradText,
+  fontSize: 96,
+  fontWeight: 900,
+  lineHeight: 0.88,
+  margin: 0,
+  letterSpacing: '-0.03em',
+  textShadow: '0 0 80px rgba(99,102,241,0.5), 0 0 30px rgba(139,92,246,0.35), 0 4px 60px rgba(99,102,241,0.15)',
 };
+
+const accentLine = (color = '#6366f1', w = 50) => ({
+  width: w, height: 2, borderRadius: 2, marginBottom: 18,
+  background: `linear-gradient(90deg, ${color}, transparent)`,
+});
 
 const HtmlOverlay = () => {
   const pinkGrad = { ...gradText, backgroundImage: 'linear-gradient(135deg, #e879f9 0%, #f472b6 50%, #fb923c 100%)' };
@@ -605,132 +612,135 @@ const HtmlOverlay = () => {
     <div style={{ width: '100vw', position: 'relative' }}>
 
       {/* ── Hero ── */}
-      <FadeCard style={{ position: 'absolute', top: '8vh', right: '8vw', width: 440 }}>
-        <div style={panelStyle}>
-          <p style={{ color: '#6366f1', fontSize: 11, letterSpacing: '0.35em', textTransform: 'uppercase', marginBottom: 12, fontWeight: 400 }}>
+      <RevealSection from="right" style={{ position: 'absolute', top: '8vh', right: '6vw', width: 520 }}>
+        <div style={sectionFont}>
+          <p style={{ color: '#6366f1', fontSize: 11, letterSpacing: '0.35em', textTransform: 'uppercase', marginBottom: 16, fontWeight: 400 }}>
             Federated Intelligence Platform
           </p>
-          <h1 style={{ ...gradText, fontSize: 58, fontWeight: 900, lineHeight: 0.92, margin: 0 }}>
+          <h1 style={heroTitleStyle}>
             HiveMind
           </h1>
-          <p style={{ color: '#94a3b8', fontSize: 15, lineHeight: 1.8, marginTop: 18 }}>
-            Train AI models together without ever sharing your data. Your devices. One collective brain.
+          <div style={{ ...accentLine('#6366f1', 80), marginTop: 20 }} />
+          <p style={{ color: '#94a3b8', fontSize: 16, lineHeight: 1.8, marginTop: 4 }}>
+            Train AI models together without ever sharing your data.<br />Your devices. One collective brain.
           </p>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 28, color: '#4b5563', fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase' }}>
-            <div style={{ width: 20, height: 1, background: 'linear-gradient(90deg, #6366f1, transparent)' }} />
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 36, color: '#4b5563', fontSize: 10, letterSpacing: '0.2em', textTransform: 'uppercase' }}>
+            <div style={{ width: 24, height: 1, background: 'linear-gradient(90deg, #6366f1, transparent)' }} />
             Scroll to explore
           </div>
         </div>
-      </FadeCard>
+      </RevealSection>
 
       {/* ── 01 The Vision ── */}
-      <FadeCard style={{ position: 'absolute', top: '110vh', left: '6vw', width: 480 }}>
-        <div style={panelStyle}>
-          <p style={{ color: '#818cf8', fontSize: 11, letterSpacing: '0.4em', textTransform: 'uppercase', marginBottom: 10, fontWeight: 600 }}>
+      <RevealSection from="left" style={{ position: 'absolute', top: '110vh', left: '6vw', width: 520 }}>
+        <div style={sectionFont}>
+          <div style={accentLine('#818cf8', 40)} />
+          <p style={{ color: '#818cf8', fontSize: 11, letterSpacing: '0.4em', textTransform: 'uppercase', marginBottom: 12, fontWeight: 600 }}>
             01 — The Vision
           </p>
-          <h2 style={{ color: '#e2e8f0', fontSize: 40, fontWeight: 700, lineHeight: 1.12, margin: 0 }}>
+          <h2 style={{ color: '#e2e8f0', fontSize: 44, fontWeight: 700, lineHeight: 1.1, margin: 0 }}>
             Collaborative AI,<br />
             <span style={gradText}>Without Boundaries</span>
           </h2>
-          <p style={{ color: '#94a3b8', fontSize: 15, lineHeight: 1.8, marginTop: 16 }}>
+          <p style={{ color: '#94a3b8', fontSize: 15, lineHeight: 1.8, marginTop: 18 }}>
             HiveMind is a federated learning platform where hundreds of devices train models together in real‑time — while every byte of raw data stays private.
           </p>
-          <div style={{ display: 'flex', gap: 14, marginTop: 24 }}>
+          <div style={{ display: 'flex', gap: 36, marginTop: 28 }}>
             {[
               { val: '100%', label: 'Privacy', col: '#818cf8' },
               { val: '10×', label: 'Faster', col: '#a78bfa' },
               { val: '∞', label: 'Devices', col: '#e879f9' },
             ].map(({ val, label, col }) => (
-              <div key={label} style={{ textAlign: 'center', flex: 1, background: SURFACE, boxShadow: neu.raised, borderRadius: 16, padding: '16px 8px', border: '1px solid rgba(99, 102, 241, 0.06)' }}>
-                <p style={{ color: col, fontSize: 24, fontWeight: 800, margin: 0 }}>{val}</p>
-                <p style={{ color: '#4b5563', fontSize: 10, marginTop: 6, fontWeight: 500, letterSpacing: '0.1em', textTransform: 'uppercase' }}>{label}</p>
+              <div key={label}>
+                <p style={{ color: col, fontSize: 30, fontWeight: 800, margin: 0, lineHeight: 1 }}>{val}</p>
+                <p style={{ color: '#4b5563', fontSize: 10, marginTop: 6, fontWeight: 500, letterSpacing: '0.15em', textTransform: 'uppercase' }}>{label}</p>
               </div>
             ))}
           </div>
         </div>
-      </FadeCard>
+      </RevealSection>
 
       {/* ── 02 Connect ── */}
-      <FadeCard style={{ position: 'absolute', top: '210vh', right: '6vw', width: 460 }}>
-        <div style={{ ...panelStyle, textAlign: 'right' }}>
-          <p style={{ color: '#e879f9', fontSize: 11, letterSpacing: '0.4em', textTransform: 'uppercase', marginBottom: 10, fontWeight: 600 }}>
+      <RevealSection from="right" style={{ position: 'absolute', top: '210vh', right: '6vw', width: 500 }}>
+        <div style={{ ...sectionFont, textAlign: 'right' }}>
+          <div style={{ ...accentLine('#e879f9', 40), marginLeft: 'auto' }} />
+          <p style={{ color: '#e879f9', fontSize: 11, letterSpacing: '0.4em', textTransform: 'uppercase', marginBottom: 12, fontWeight: 600 }}>
             02 — Connect
           </p>
-          <h2 style={{ color: '#e2e8f0', fontSize: 40, fontWeight: 700, lineHeight: 1.12, margin: 0 }}>
+          <h2 style={{ color: '#e2e8f0', fontSize: 44, fontWeight: 700, lineHeight: 1.1, margin: 0 }}>
             Every Device<br />
             <span style={pinkGrad}>Trains Locally</span>
           </h2>
-          <p style={{ color: '#94a3b8', fontSize: 15, lineHeight: 1.8, marginTop: 16 }}>
+          <p style={{ color: '#94a3b8', fontSize: 15, lineHeight: 1.8, marginTop: 18 }}>
             When you join a HiveMind room, your device trains its own copy of the model using only your local data. No uploads — just your GPU doing the work.
           </p>
         </div>
-      </FadeCard>
+      </RevealSection>
 
       {/* ── 03 Synchronize ── */}
-      <FadeCard style={{ position: 'absolute', top: '300vh', left: '6vw', width: 460 }}>
-        <div style={panelStyle}>
-          <p style={{ color: '#22d3ee', fontSize: 11, letterSpacing: '0.4em', textTransform: 'uppercase', marginBottom: 10, fontWeight: 600 }}>
+      <RevealSection from="left" style={{ position: 'absolute', top: '300vh', left: '6vw', width: 500 }}>
+        <div style={sectionFont}>
+          <div style={accentLine('#22d3ee', 40)} />
+          <p style={{ color: '#22d3ee', fontSize: 11, letterSpacing: '0.4em', textTransform: 'uppercase', marginBottom: 12, fontWeight: 600 }}>
             03 — Synchronize
           </p>
-          <h2 style={{ color: '#e2e8f0', fontSize: 40, fontWeight: 700, lineHeight: 1.12, margin: 0 }}>
+          <h2 style={{ color: '#e2e8f0', fontSize: 44, fontWeight: 700, lineHeight: 1.1, margin: 0 }}>
             Only Weights Travel.<br />
             <span style={cyanGrad}>Data Never Leaves.</span>
           </h2>
-          <p style={{ color: '#94a3b8', fontSize: 15, lineHeight: 1.8, marginTop: 16 }}>
+          <p style={{ color: '#94a3b8', fontSize: 15, lineHeight: 1.8, marginTop: 18 }}>
             After each round, devices share only model weights — tiny numeric updates. The server aggregates them, producing a smarter global model without seeing a single data point.
           </p>
         </div>
-      </FadeCard>
+      </RevealSection>
 
       {/* ── 04 Evolve ── */}
-      <FadeCard style={{ position: 'absolute', top: '380vh', right: '8vw', width: 440 }}>
-        <div style={{ ...panelStyle, textAlign: 'center' }}>
-          <p style={{ color: '#a78bfa', fontSize: 11, letterSpacing: '0.4em', textTransform: 'uppercase', marginBottom: 10, fontWeight: 600 }}>
+      <RevealSection from="right" style={{ position: 'absolute', top: '380vh', right: '8vw', width: 480 }}>
+        <div style={{ ...sectionFont, textAlign: 'center' }}>
+          <div style={{ ...accentLine('#a78bfa', 40), margin: '0 auto 18px' }} />
+          <p style={{ color: '#a78bfa', fontSize: 11, letterSpacing: '0.4em', textTransform: 'uppercase', marginBottom: 12, fontWeight: 600 }}>
             04 — Evolve
           </p>
-          <h2 style={{ color: '#e2e8f0', fontSize: 40, fontWeight: 700, lineHeight: 1.12, margin: 0 }}>
+          <h2 style={{ color: '#e2e8f0', fontSize: 44, fontWeight: 700, lineHeight: 1.1, margin: 0 }}>
             The Model Gets Smarter.<br />
             <span style={gradText}>Together.</span>
           </h2>
-          <p style={{ color: '#94a3b8', fontSize: 15, lineHeight: 1.8, marginTop: 16 }}>
+          <p style={{ color: '#94a3b8', fontSize: 15, lineHeight: 1.8, marginTop: 18 }}>
             Each sync cycle strengthens the collective intelligence. More participants means better generalization and faster convergence — with zero data exposure.
           </p>
         </div>
-      </FadeCard>
+      </RevealSection>
 
       {/* ── Auth / Join ── */}
-      <FadeCard style={{ position: 'absolute', top: '450vh', left: '50%', width: 420, marginLeft: -210 }}>
-        <div style={{ ...panelStyle, textAlign: 'center' }}>
-          <div style={{ marginBottom: 24 }}>
-            <h3 style={{ color: '#e2e8f0', fontSize: 30, fontWeight: 700, margin: 0 }}>Join HiveMind</h3>
-            <p style={{ color: '#4b5563', fontSize: 13, marginTop: 8 }}>Start training with the collective</p>
-          </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+      <RevealSection from="center" style={{ position: 'absolute', top: '450vh', left: '50%', width: 400, marginLeft: -200 }}>
+        <div style={{ ...sectionFont, textAlign: 'center' }}>
+          <h3 style={{ ...gradText, fontSize: 34, fontWeight: 800, margin: 0 }}>Join HiveMind</h3>
+          <p style={{ color: '#4b5563', fontSize: 13, marginTop: 8, marginBottom: 28 }}>Start training with the collective</p>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
             <input
               type="email"
               placeholder="Email address"
-              style={{ background: SURFACE, boxShadow: neu.inset, border: '1px solid rgba(99, 102, 241, 0.08)', borderRadius: 14, padding: '16px 20px', fontSize: 14, color: '#e2e8f0', outline: 'none', fontFamily: "'Sora', sans-serif" }}
+              style={{ background: 'rgba(19,19,31,0.5)', border: '1px solid rgba(99,102,241,0.15)', borderRadius: 12, padding: '15px 18px', fontSize: 14, color: '#e2e8f0', outline: 'none', fontFamily: "'Sora', sans-serif", backdropFilter: 'blur(12px)' }}
             />
             <input
               type="password"
               placeholder="Password"
-              style={{ background: SURFACE, boxShadow: neu.inset, border: '1px solid rgba(99, 102, 241, 0.08)', borderRadius: 14, padding: '16px 20px', fontSize: 14, color: '#e2e8f0', outline: 'none', fontFamily: "'Sora', sans-serif" }}
+              style={{ background: 'rgba(19,19,31,0.5)', border: '1px solid rgba(99,102,241,0.15)', borderRadius: 12, padding: '15px 18px', fontSize: 14, color: '#e2e8f0', outline: 'none', fontFamily: "'Sora', sans-serif", backdropFilter: 'blur(12px)' }}
             />
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginTop: 6 }}>
-              <button style={{ background: 'linear-gradient(135deg, #6366f1, #8b5cf6)', color: '#fff', border: 'none', borderRadius: 14, padding: '16px 0', fontWeight: 700, fontSize: 14, cursor: 'pointer', boxShadow: '0 4px 20px rgba(99, 102, 241, 0.35)', fontFamily: "'Sora', sans-serif", letterSpacing: '0.03em' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginTop: 8 }}>
+              <button style={{ background: 'linear-gradient(135deg, #6366f1, #8b5cf6)', color: '#fff', border: 'none', borderRadius: 12, padding: '15px 0', fontWeight: 700, fontSize: 14, cursor: 'pointer', boxShadow: '0 4px 24px rgba(99,102,241,0.4)', fontFamily: "'Sora', sans-serif", letterSpacing: '0.03em' }}>
                 Login
               </button>
-              <button style={{ background: SURFACE, color: '#94a3b8', border: '1px solid rgba(99, 102, 241, 0.1)', borderRadius: 14, padding: '16px 0', fontWeight: 600, fontSize: 14, cursor: 'pointer', boxShadow: neu.raised, fontFamily: "'Sora', sans-serif", letterSpacing: '0.03em' }}>
+              <button style={{ background: 'transparent', color: '#94a3b8', border: '1px solid rgba(99,102,241,0.2)', borderRadius: 12, padding: '15px 0', fontWeight: 600, fontSize: 14, cursor: 'pointer', fontFamily: "'Sora', sans-serif", letterSpacing: '0.03em' }}>
                 Register
               </button>
             </div>
           </div>
-          <p style={{ color: '#374151', fontSize: 11, marginTop: 20, lineHeight: 1.5 }}>
+          <p style={{ color: '#374151', fontSize: 11, marginTop: 24, lineHeight: 1.5 }}>
             Your device becomes part of a privacy‑preserving distributed training network.
           </p>
         </div>
-      </FadeCard>
+      </RevealSection>
     </div>
   );
 };
