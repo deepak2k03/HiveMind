@@ -1,0 +1,51 @@
+@import url('https://fonts.googleapis.com/css2?family=Sora:wght@300;400;600;700;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Sora', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  background: #0c0c14;
+  color: #c8cad0;
+}
+
+@keyframes scrollBounce {
+  0%, 100% { transform: translateX(-50%) translateY(0); opacity: 0.5; }
+  50% { transform: translateX(-50%) translateY(-12px); opacity: 1; }
+}
+
+@keyframes scrollFloat {
+  0%, 100% { transform: translateY(0); opacity: 0.5; }
+  50% { transform: translateY(-10px); opacity: 1; }
+}
+
+/* Smooth scrollbar for the scene */
+::-webkit-scrollbar {
+  width: 0;
+  background: transparent;
+}
+
+/* GPU-accelerated smooth rendering */
+canvas {
+  image-rendering: auto;
+}
+
+/* Ensure smooth font rendering on the overlay panels */
+.font-sans {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
